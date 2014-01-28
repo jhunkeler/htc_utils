@@ -15,21 +15,20 @@ def main():
 
     job = [os.path.normpath(args.job)]
     indata = args.indata
-    data = []
+    output = []
     if verbose:
         print("Job: {}".format(job))
-        if isinstance(indata, file):
-            print("Input:"),
-            for line in indata.readlines():
-                data.append(line)
-                print(data)
-        else:
-            print("Data: {}".format(indata))
-            data = indata
 
-    compiled = job + data
-    # print(compiled)
-    process = subprocess.Popen(compiled)
+    if isinstance(indata, file):
+        for line in indata.readlines():
+            output.append(line)
+    else:
+        output = indata
+
+    compiled = job + output
+    process = subprocess.Popen(compiled, stdout=sys.stdout, stderr=sys.stderr)
+    process.communicate()
+    process.wait()
 
 
 if __name__ == "__main__":
