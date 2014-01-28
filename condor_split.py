@@ -14,30 +14,33 @@ def path_dive(p, ext, strip_components):
                 continue
             if fnmatch.fnmatch(path, ext):
                 if strip_components:
-                    print("stripping {}".format(strip_components))
-                    try:
-                        head, tail = os.path.split(path)
+                    head, tail = os.path.split(path)
+                    strip_max = len(head.split(os.path.sep))
+                    if strip_components <= strip_max:
                         components = head.split(os.path.sep)[strip_components:]
                         path = os.path.join(os.path.sep.join(components), tail)
-                    except IndexError:
-                        print("Depth exceeded!  Cannot strip {} components from {}".format(strip_components, path))
-                        exit(1)
+                    else:
+                        #strip_components = strip_max
+                        print("Warning: Cannot strip {} components from {} (max {})".format(strip_components, path, strip_max))
                 filenames.append(path)
     return filenames
 
+def assign_chunk():
+    pass
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("search_path", nargs="+", help="Directory to search under")
-    parser.add_argument("--strip-components", default=0, help="Top-level directories to strip")
+    parser.add_argument("search_path", action="store", help="Directory to search under")
+    parser.add_argument("--strip-components", default=0, type=int, help="Top-level directories to strip")
     parser.add_argument("--output-dir", default="input")
     parser.add_argument("--extension", default="*.*", help="Extension of files")
     parser.add_argument("--chunks", default=4, help="Number of entries per file")
     args = parser.parse_args()
 
-    for path in args.search_path:
-        print("Searching {} for {}".format(path, args.extension))
-        print(path_dive(path, args.extension, args.strip_components))
+    paths = path_dive(args.search_path, args.extension, args.strip_components):
+    print("{} files".format(len(paths)))
+    if not paths:
+        exit(0)
 
 
 
