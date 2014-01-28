@@ -21,6 +21,7 @@ def main():
 
     if isinstance(indata, file):
         for line in indata.readlines():
+            line = line.strip()
             output.append(line)
     else:
         output = indata

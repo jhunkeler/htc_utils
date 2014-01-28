@@ -64,8 +64,6 @@ def assign_chunks(manifest, chunks, output_dir, as_jobs=False):
 
 
     for line in open(manifest, 'r'):
-        line = line.strip(os.linesep)
-        line += " "
         if count % chunks == 0:
             if dest:
                 dest.close()
