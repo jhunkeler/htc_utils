@@ -37,7 +37,7 @@ def main():
     parser.add_argument("--chunks", default=4, help="Number of entries per file")
     args = parser.parse_args()
 
-    paths = path_dive(args.search_path, args.extension, args.strip_components):
+    paths = path_dive(args.search_path, args.extension, args.strip_components)
     print("{} files".format(len(paths)))
     if not paths:
         exit(0)
