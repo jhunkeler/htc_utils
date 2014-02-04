@@ -42,10 +42,10 @@ def path_search(p, ext, strip_components):
                         path = os.path.join(os.path.sep.join(components), tail)
                     else:
                         # strip_components = strip_max
-                        print("Warning: Cannot strip {} components from {} (max {})".format(strip_components, path, strip_max))
+                        print("Warning: Cannot strip {0} components from {1} (max {2})".format(strip_components, path, strip_max))
 
                 if VERBOSE:
-                    print("[{}]:{}".format(index, path))
+                    print("[{0}]:{1}".format(index, path))
                 filenames.append(path)
                 index += 1
     return filenames
@@ -65,7 +65,7 @@ def assign_chunks(manifest, chunks, output_dir, as_jobs=False):
     output_dir = os.path.abspath(output_dir)
 
     if VERBOSE:
-        print("Output directory: {}".format(output_dir))
+        print("Output directory: {0}".format(output_dir))
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -84,7 +84,7 @@ def assign_chunks(manifest, chunks, output_dir, as_jobs=False):
             if dest:
                 dest.close()
                 if VERBOSE:
-                    print("[{}]: {}, {} entries".format(label, os.path.basename(dest.name), written))
+                    print("[{0}]: {1}, {2} entries".format(label, os.path.basename(dest.name), written))
                 written = 0
             dest = file(os.path.join(output_dir, "stdin." + str(label)), 'w')
             label += 1
@@ -117,7 +117,7 @@ def main():
         index_at = 1
 
     if VERBOSE:
-        print("{} files".format(len(files)))
+        print("{0} files".format(len(files)))
 
     if not files:
         exit(0)

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with htcondor_utils.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import argparse
 import os
 import sys
@@ -30,20 +29,21 @@ def main():
 
     verbose = args.verbose
 
-    job = [os.path.normpath(args.job)]
+    job = [os.path.abspath(args.job)]
     indata = args.indata
     output = []
-    if verbose:
-        print("Job: {}".format(job))
-
     if isinstance(indata, file):
         for line in indata.readlines():
             line = line.strip()
+            line = os.path.abspath(line)
             output.append(line)
     else:
         output = indata
 
     compiled = job + output
+    if verbose:
+        print("Job: {0}".format(compiled))
+
     process = subprocess.Popen(compiled, stdout=sys.stdout, stderr=sys.stderr)
     process.communicate()
     process.wait()
