@@ -1,6 +1,6 @@
 # Requirements
 
-The `htc_utils.bindings` require a working HTCondor installation in your `PATH`
+The `htc_utils.bindings` package requires a working HTCondor installation in your `PATH` in order to function properly.
 
 ### Python 2.6.x:
 
