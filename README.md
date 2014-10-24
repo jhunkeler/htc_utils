@@ -26,7 +26,7 @@ python setup.py install --user
 
 # HTCondor Bindings
 
-## `Job` & `Submit` Classes
+## Job & Submit Classes
 
 This is an example of how to generate and submit simple jobs to a HTCondor cluster using htc_utils.
 
