@@ -30,6 +30,7 @@ parser.add_argument('--stdout', action='store_true', help='Output job to stdout 
 parser.add_argument('-q', '--queue', action='store', default='', help='Queue main job N times')
 parser.add_argument('-b', '--subqueue', action='store', default='', help='Queue sub-job N tims')
 parser.add_argument('-s', '--subarg', action='append')
+parser.add_argument('--logging', action='store', default='logs')
 
 # Sort by key, then by value
 sorted_args = sorted(nulljob.config.items(), key=lambda record: record[0], reverse=False)
@@ -61,6 +62,9 @@ for key, value in vars(args).items():
     if key not in job.config:
         continue
     job.attr(key, value)
+
+if args.logging:
+    job.logging(args.logging, create=True)
 
 # Manually assign important variables
 job.attr('executable', args.executable)
