@@ -88,6 +88,8 @@ class Job(object):
             self.attr('stack_size', ''),
             ]
 
+        self.logs = {}
+
         for key, value in kwargs.items():
             self.attr(key, value)
 
@@ -125,9 +127,13 @@ class Job(object):
         if create and not os.path.exists(path):
             os.mkdir(os.path.abspath(path))
 
-        self.attr('log', os.path.normpath(os.path.join(path, '.'.join(['condor_$(Cluster)', ext]))))
-        self.attr('output', os.path.normpath(os.path.join(path, '.'.join(['stdout_$(Cluster)_$(Process)', ext]))))
-        self.attr('error', os.path.normpath(os.path.join(path, '.'.join(['stderr_$(Cluster)_$(Process)', ext]))))
+        self.logs['log'] = os.path.normpath(os.path.join(path, '.'.join(['condor_$(Cluster)', ext])))
+        self.logs['output'] = os.path.normpath(os.path.join(path, '.'.join(['stdout_$(Cluster)_$(Process)', ext])))
+        self.logs['error'] = os.path.normpath(os.path.join(path, '.'.join(['stderr_$(Cluster)_$(Process)', ext])))
+
+        self.attr('log', self.logs['log'])
+        self.attr('output', self.logs['output'])
+        self.attr('error', self.logs['error'])
 
     def attr(self, key, *args):
         value = ' '.join([recast(x) for x in args])
