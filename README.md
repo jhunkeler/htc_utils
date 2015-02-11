@@ -107,7 +107,6 @@ queue
 #!bash
 condor_batch -n my_neato_condor \
 --logging logs \
---logging-create \
 --getenv true \
 --subarg 5 \
 --subarg 2 \
