@@ -3,17 +3,23 @@ import subprocess
 from collections import OrderedDict
 from distutils.spawn import find_executable
 
-__all__ = ['htcondor_path', 'recast', 'Job', 'Submit']
+__all__ = ['htcondor_path', 'recast', 'Job', 'Submit', 'Wait']
 
 def htcondor_path(path=None):
-    needles = ['condor_master', 'condor_submit']
+    needles = ['condor_master', 'condor_submit', 'condor_wait']
     paths = []
+
     if path is not None:
         os.environ['PATH'] = ':'.join([os.path.join(path, 'bin'), os.environ['PATH']])
         os.environ['PATH'] = ':'.join([os.path.join(path, 'sbin'), os.environ['PATH']])
 
     for needle in needles:
-        paths.append(os.path.dirname(find_executable(needle)))
+        try:
+            executable = find_executable(needle, os.environ['PATH'])
+            path = os.path.dirname(executable)
+            paths.append(path)
+        except AttributeError:
+            pass
 
     if not paths:
         raise OSError('Unable to find a valid HTCondor installation.')
@@ -57,3 +63,4 @@ def recast(value):
 
 from .job import *
 from .submit import *
+from .wait import *
