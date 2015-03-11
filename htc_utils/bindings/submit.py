@@ -21,11 +21,21 @@ from . import htcondor_path
 
 class Submit(object):
     def __init__(self, job, **kwargs):
+        self._htcondor_path = None
+        if 'install_prefix' in kwargs:
+            self._htcondor_path = htcondor_path(kwargs['install_prefix'])
+        else:
+            self._htcondor_path = htcondor_path()
+
         self.job = job
-        self.cluster = None
+        self.cluster = []
         self.environ = os.environ
-        self._prefix = ':'.join([os.environ['PATH'], htcondor_path()])
+        self._prefix = ':'.join([self.environ['PATH'], self._htcondor_path])
         self.environ['PATH'] = self._prefix
+
+        if 'CONDOR_CONFIG' not in self.environ:
+            self.environ['CONDOR_CONFIG'] = os.path.abspath(self._htcondor_path.split(':')[0] + '/../etc/condor_config')
+
         self.cli_args = []
 
         print("Received job: {}".format(self.job.filename))
@@ -63,14 +73,14 @@ class Submit(object):
             if 'cluster' in stdout:
                 for line in stdout.split(os.linesep):
                     if 'cluster' in line:
-                        self.cluster = line.split()[-1].strip('.')
+                        self.cluster.append(line.split()[-1].strip('.'))
 
     def monitor(self):
-        if self.cluster is None:
+        if not self.cluster:
             print('No cluster data for job.')
             return False
         print('Monitoring cluster {}'.format(self.cluster))
-        os.environ['PATH'] = self._prefix
+        self.environ['PATH'] = self._prefix
         '''
         proc = subprocess.Popen('condor_q -analyze:summary'.split(), env=self.environ)
         proc.communicate()
