@@ -18,6 +18,7 @@
 
 import argparse
 import htc_utils
+import os
 import time
 
 
@@ -25,12 +26,13 @@ import time
 nulljob = htc_utils.Job('NULL')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-n', '--jobname', action='store', default=str(int(time.time())), help='Output filename without extension (Default: {Unix Epoch}.job')
+parser.add_argument('--infile', nargs='?', type=argparse.FileType('r'))
 parser.add_argument('--stdout', action='store_true', help='Output job to stdout instead of a file')
-parser.add_argument('-q', '--queue', action='store', default='', help='Queue main job N times')
-parser.add_argument('-b', '--subqueue', action='store', default='', help='Queue sub-job N tims')
-parser.add_argument('-s', '--subarg', action='append')
 parser.add_argument('--logging', action='store', default='logs')
+parser.add_argument('-n', '--jobname', action='store', default=str(int(time.time())), help='Output filename without extension (Default: {Unix Epoch}.job')
+parser.add_argument('-q', '--queue', action='store', default='', help='Queue main job N times')
+parser.add_argument('-b', '--subqueue', action='store', default='', help='Queue sub-job N times')
+parser.add_argument('-s', '--subarg', action='append')
 
 # Sort by key, then by value
 sorted_args = sorted(nulljob.config.items(), key=lambda record: record[0], reverse=False)
@@ -49,8 +51,12 @@ for attr, value in sorted_args:
     default_value = '(Default: {0})'.format(value) if value else ''
     parser.add_argument('--' + attr, default=value, help=default_value)
 
-parser.add_argument('executable')
-parser.add_argument('args', nargs='*')
+args = parser.parse_args()
+
+if not args.infile:
+    parser.add_argument('executable')
+    parser.add_argument('args', nargs='*')
+
 args = parser.parse_args()
 
 # Let's begin writing our HTCondor job
@@ -66,16 +72,31 @@ for key, value in vars(args).items():
 if args.logging:
     job.logging(args.logging, create=True)
 
-# Manually assign important variables
-job.attr('executable', args.executable)
-job.attr('arguments', args.args)
-job.attr('queue', args.queue)
+if args.infile:
+    warnings = []
+    for index, line in enumerate(args.infile.readlines()):
+        in_args = line.rstrip()
+        in_args = line.split()
+        if len(in_args) < 2:
+            warnings.append('# Warning: No argument(s) defined for: "{0}", in "{1}", line {2}'.format(''.join(in_args), args.infile.name, index + 1))
+        job.subattr('executable', in_args[0])
+        job.subattr('arguments', in_args[1:])
+        job.subattr('queue')
 
-# Process any sub-attributes we may have
-if args.subarg is not None:
-    for subarg in args.subarg:
-        job.subattr('arguments', subarg)
-        job.subattr('queue', args.subqueue)
+    for warning in warnings:
+        print(warning)
+
+else:
+    # Manually assign important variables
+    job.attr('executable', args.executable)
+    job.attr('arguments', args.args)
+    job.attr('queue', args.queue)
+
+    # Process any sub-attributes we may have
+    if args.subarg is not None:
+        for subarg in args.subarg:
+            job.subattr('arguments', subarg)
+            job.subattr('queue', args.subqueue)
 
 if args.stdout:
     print(job.generate())
