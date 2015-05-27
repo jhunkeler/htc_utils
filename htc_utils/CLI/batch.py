@@ -74,14 +74,52 @@ if args.logging:
 
 if args.infile:
     warnings = []
-    for index, line in enumerate(args.infile.readlines()):
-        in_args = line.rstrip()
-        in_args = line.split()
-        if len(in_args) < 2:
-            warnings.append('# Warning: No argument(s) defined for: "{0}", in "{1}", line {2}'.format(''.join(in_args), args.infile.name, index + 1))
-        job.subattr('executable', in_args[0])
-        job.subattr('arguments', in_args[1:])
-        job.subattr('queue')
+    cmd_groups = []
+    uniques = []
+    lines = args.infile.readlines()
+    lines = [ x.rstrip() for x in lines ]
+
+    # Generate set of unique commands in the input file
+    for line in lines:
+        if line.startswith('#'):
+            continue
+        if not line:
+            continue
+
+        cmd = line.split()
+        uniques.append(cmd[0])
+
+    uniques = set(uniques)
+
+    # Generate cmd_groups list to separate unique group records
+    for unique in uniques:
+        temp_group = []
+        for index, line in enumerate(lines):
+            if line.startswith(unique):
+                cmd = line.rstrip().split()
+                if not cmd[1:]:
+                    warnings.append('#{0}:{1}:{2} - Warning, executable has no argument. Skipping...'.format(args.infile.name, index + 1, ''.join(line)))
+                    continue
+                temp_group.append(cmd)
+        if temp_group:
+            cmd_groups.append(temp_group)
+
+    # Generate job data
+    for unique in uniques:
+        job.subattr('executable', unique)
+        for group in cmd_groups:
+            for cmd in group:
+                if unique in cmd:
+                    cmd_args = cmd[1:]
+
+                    if not cmd_args:
+                        continue
+
+                    job.subattr('arguments', cmd_args)
+                    job.subattr('queue')
+
+    if args.infile:
+        args.infile.close()
 
     for warning in warnings:
         print(warning)
