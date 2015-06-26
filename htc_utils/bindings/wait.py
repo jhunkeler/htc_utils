@@ -33,7 +33,7 @@ class Wait(object):
         
     def execute(self):
         logfile = self.submit.job.logs['log'].replace('$(Cluster)', self.submit.cluster)
-        print "logfile: ", logfile
+        print("logfile: {0}".format(logfile))
         condor_wait_args = ' '.join([str(arg) for record in self.cli_args for arg in record])
         condor_wait = ' '.join(['condor_wait', condor_wait_args, logfile])
         proc = subprocess.Popen(condor_wait.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.submit.environ)
