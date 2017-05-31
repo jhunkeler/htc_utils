@@ -4,8 +4,8 @@ from shutil import copy2
 from setuptools import setup, find_packages
 
 CLI = relpath('htc_utils/CLI')
-scripts_original = [ join(CLI, 'split.py'), 
-                        join(CLI, 'wrap.py'), 
+scripts_original = [ join(CLI, 'split.py'),
+                        join(CLI, 'wrap.py'),
                         join(CLI, 'batch.py') ]
 scripts_renamed = [ splitext(x)[0] for x in scripts_original ]
 scripts_renamed = [ 'condor_' + basename(x) for x in scripts_renamed ]
@@ -15,7 +15,7 @@ for script, script_renamed in zip(scripts_original, scripts_renamed):
 
 setup(
     name="htc_utils",
-    version="0.1",
+    version="0.1.0",
     packages=find_packages(),
     scripts=scripts_renamed,
 
