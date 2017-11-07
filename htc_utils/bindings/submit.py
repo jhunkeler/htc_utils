@@ -34,7 +34,8 @@ class Submit(object):
         self.environ['PATH'] = self._prefix
 
         if 'CONDOR_CONFIG' not in self.environ:
-            self.environ['CONDOR_CONFIG'] = os.path.abspath(self._htcondor_path.split(':')[0] + '/../etc/condor_config')
+            self.environ['CONDOR_CONFIG'] = os.path.abspath(self._htcondor_path.split(':')[0] +
+                                                '/../../etc/condor/condor_config')
 
         self.cli_args = []
 
@@ -65,6 +66,12 @@ class Submit(object):
         condor_submit = ' '.join(['condor_submit', condor_submit_args, self.job.filename])
         proc = subprocess.Popen(condor_submit.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environ)
         stdout, stderr = proc.communicate()
+
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode()
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode()
+
         print(stdout)
         print(stderr)
         proc.wait()
