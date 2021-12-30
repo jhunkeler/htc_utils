@@ -15,7 +15,7 @@ for script, script_renamed in zip(scripts_original, scripts_renamed):
 
 setup(
     name="htc_utils",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     scripts=scripts_renamed,
 
