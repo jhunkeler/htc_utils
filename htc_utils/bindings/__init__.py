@@ -6,23 +6,26 @@ from distutils.spawn import find_executable
 __all__ = ['htcondor_path', 'recast', 'Job', 'Submit', 'Wait']
 
 def htcondor_path(path=None):
-    needles = ['condor_master', 'condor_submit', 'condor_wait']
+    programs = ['condor_master', 'condor_submit', 'condor_wait']
     paths = []
+
+    if '/usr/sbin' not in os.environ['PATH']:
+        os.environ['PATH'] += ":/usr/sbin"
 
     if path is not None:
         os.environ['PATH'] = ':'.join([os.path.join(path, 'bin'), os.environ['PATH']])
         os.environ['PATH'] = ':'.join([os.path.join(path, 'sbin'), os.environ['PATH']])
 
-    for needle in needles:
-        try:
-            executable = find_executable(needle, os.environ['PATH'])
-            path = os.path.dirname(executable)
-            paths.append(path)
-        except AttributeError:
-            pass
+    for program in programs:
+        executable = find_executable(program, os.environ['PATH'])
+        if not executable:
+            continue
+        path = os.path.dirname(executable)
+        paths.append(path)
 
     if not paths:
-        raise OSError('Unable to find a valid HTCondor installation.')
+        raise OSError('HTCondor installation not found. '
+                'Modify your PATH variable and try again.'.format(", ".join(programs)))
 
     return ':'.join(paths)
 
